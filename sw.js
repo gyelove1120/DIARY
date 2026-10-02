@@ -1,5 +1,5 @@
 // 오프라인에서도 다이어리가 열리도록 앱 파일을 저장해 두는 서비스 워커
-const VERSION = 'diary-v8';
+const VERSION = 'diary-v9';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './firebase-config.js',
   './apple-touch-icon.png', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 
