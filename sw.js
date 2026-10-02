@@ -1,5 +1,5 @@
 // 오프라인에서도 다이어리가 열리도록 앱 파일을 저장해 두는 서비스 워커
-const VERSION = 'diary-v9';
+const VERSION = 'diary-v10';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './firebase-config.js',
   './apple-touch-icon.png', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 
@@ -22,7 +22,7 @@ self.addEventListener('fetch', e => {
 
   // 앱 화면: 네트워크 우선, 끊기면 저장본
   if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).then(r => { const copy = r.clone(); caches.open(VERSION).then(c => c.put('./index.html', copy)); return r; })
+    e.respondWith(fetch(req.url, {cache: 'no-cache', credentials: 'same-origin'}).then(r => { const copy = r.clone(); caches.open(VERSION).then(c => c.put('./index.html', copy)); return r; })
       .catch(() => caches.match('./index.html')));
     return;
   }

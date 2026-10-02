@@ -78,7 +78,7 @@ body{background:radial-gradient(120% 90% at 50% 45%,var(--desk),var(--desk2));co
 #cover::after{content:"";position:absolute;inset:calc(var(--pw)*.011);border:1.5px dashed var(--stitch);border-radius:calc(var(--pw)*.016);opacity:.75}
 .single #cover{background:radial-gradient(90% 70% at 30% 20%,rgba(255,220,180,.16),transparent 60%),radial-gradient(80% 80% at 80% 90%,rgba(40,20,8,.28),transparent 70%),var(--grain),var(--leather)}
 
-#book{position:absolute;inset:0;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;font-size:15px}
+#book{position:absolute;inset:0;touch-action:pan-y pinch-zoom;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;font-size:15px}
 .slot{position:absolute;top:0;width:var(--pw);height:var(--ph)}
 #slU,#slT{left:0} #srU,#srT{left:var(--pw)}
 .slot.lift{z-index:5;pointer-events:none}
@@ -119,7 +119,7 @@ body{background:radial-gradient(120% 90% at 50% 45%,var(--desk),var(--desk2));co
 /* page-turn edges */
 .edge{position:absolute;top:0;bottom:0;width:1.55em;z-index:15;border:0;padding:0;background:transparent;cursor:pointer;
   display:grid;place-items:center;color:var(--mute);font:700 1.6em/1 var(--f-num);-webkit-tap-highlight-color:transparent;transition:background .2s,color .2s}
-.edge span{font-size:1em;opacity:.55;transition:opacity .2s}
+.edge span{font-size:1.3em;opacity:.8;color:var(--leather2);transition:opacity .2s}
 .edge.next{right:0;background:linear-gradient(270deg,rgba(107,66,38,.07),transparent)}
 .edge.prev{left:0;background:linear-gradient(90deg,rgba(107,66,38,.07),transparent)}
 .edge:hover span,.edge:active span{opacity:1;color:var(--head)}
@@ -970,6 +970,22 @@ function turn(dir){
   animCurl(two ? 640 : 500, finish);
 }
 edgeNext.addEventListener('click', () => turn(1));
+// swipe left/right anywhere on the page to turn (finger or mouse; Apple Pencil keeps writing)
+let sw = null;
+book.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'pen' || fingerWrite || stkPlacing || e.button > 0) return;
+  if (e.target.closest('.sk,.sk-bar,.edge')) return;
+  sw = {id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now()};
+});
+window.addEventListener('pointerup', e => {
+  if (!sw || e.pointerId !== sw.id) return;
+  const dx = e.clientX - sw.x, dy = e.clientY - sw.y, dt = performance.now() - sw.t; sw = null;
+  if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4 && dt < 900){
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    turn(dx < 0 ? 1 : -1);
+  }
+});
+window.addEventListener('pointercancel', e => { if (sw && e.pointerId === sw.id) sw = null; });
 edgePrev.addEventListener('click', () => turn(-1));
 bNext.addEventListener('click', () => turn(1));
 bPrev.addEventListener('click', () => turn(-1));
